@@ -63,7 +63,7 @@ function filter_input_data($input)
                 <input type="submit" value="View">
             </form>
             <?php
-            if (isset($_POST["uin"])) {
+            if (!isset($_POST["ce_num"]) and isset($_POST["uin"]) and !isset($_POST["cert_id"]) and !isset($_POST["program_num"]) and !isset($_POST["semester"]) and !isset($_POST["year"]) and !isset($_POST["status"]) and !isset($_POST["train_status"])) {
                 if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     try {
                         require "view_certification.php";
@@ -79,12 +79,70 @@ function filter_input_data($input)
             <h3>
                 Insert
             </h3>
+            <form action="certification_tracking.php" method="post">
+                UIN: <input type="text" name="uin">
+                <br></br>
+                Certification ID: <input type="text" name="cert_id">
+                <br></br>
+                Program Number: <input type="text" name="program_num">
+                <br></br>
+                Semester: <input type="text" name="semester">
+                <br></br>
+                Year: <input type="text" name="year">
+                <br></br>
+                Status: <input type="text" name="status">
+                <br></br>
+                Training Status: <input type="text" name="train_status">
+                <br></br>
+                <input type="submit" value="Insert">
+            </form>
+            <?php
+            if (!isset($_POST["ce_num"]) and isset($_POST["uin"]) and isset($_POST["cert_id"]) and isset($_POST["program_num"]) and isset($_POST["semester"]) and isset($_POST["year"]) and isset($_POST["status"]) and isset($_POST["train_status"])) {
+                if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                    try {
+                        require "insert_certification.php";
+                    } catch (Exception $e) {
+                        echo "Fatal Error occured when inserting certification status. Error Message: " . $e->getMessage() . "Error Trace: " . $e->getTrace();
+                    }
+                }
+            }
+            ?>
         </div>
         <!-- Update Certification Status -->
         <div>
             <h3>
                 Update
             </h3>
+            <form action="certification_tracking.php" method="post">
+                Course Enrollment Number: <input type="text" name="ce_num">
+                <br></br>
+                UIN: <input type="text" name="uin">
+                <br></br>
+                Certification ID: <input type="text" name="cert_id">
+                <br></br>
+                Program Number: <input type="text" name="program_num">
+                <br></br>
+                Semester: <input type="text" name="semester">
+                <br></br>
+                Year: <input type="text" name="year">
+                <br></br>
+                Status: <input type="text" name="status">
+                <br></br>
+                Training Status: <input type="text" name="train_status">
+                <br></br>
+                <input type="submit" value="Insert">
+            </form>
+            <?php
+            if (isset($_POST["ce_num"]) and isset($_POST["uin"]) and isset($_POST["cert_id"]) and isset($_POST["program_num"]) and isset($_POST["semester"]) and isset($_POST["year"]) and isset($_POST["status"]) and isset($_POST["train_status"])) {
+                if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                    try {
+                        require "update_certification.php";
+                    } catch (Exception $e) {
+                        echo "Fatal Error occured when updating status. Error Message: " . $e->getMessage() . "Error Trace: " . $e->getTrace();
+                    }
+                }
+            }
+            ?>
         </div>
         <!-- Navigation -->
         <div>
@@ -96,6 +154,16 @@ function filter_input_data($input)
 </html>
 
 <?php
+// Reset POST request values
+$_POST["ce_num"] = null;
+$_POST["uin"] = null;
+$_POST["cert_id"] = null;
+$_POST["program_num"] = null;
+$_POST["semester"] = null;
+$_POST["year"] = null;
+$_POST["status"] = null;
+$_POST["train_status"] = null;
+
 // Close connection
 $database_connection->close();
 ?>
