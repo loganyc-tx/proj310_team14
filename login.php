@@ -18,23 +18,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST["password"];
 
     // Use prepared statements to prevent SQL injection
-    $stmt = $conn->prepare("SELECT User_Type FROM user WHERE Username=? AND Passwords=?");
+    $stmt = $conn->prepare("SELECT UIN, User_Type, access FROM user WHERE Username=? AND Passwords=?");
     $stmt->bind_param("ss", $username, $password);
     $stmt->execute();
-    $stmt->bind_result($userType);
+    $stmt->bind_result($uin, $userType, $access);
 
     if ($stmt->fetch()) {
         // Login successful
         session_start();
         $_SESSION["username"] = $username;
         $_SESSION["userType"] = $userType;
+        $_SESSION["uin"] = $uin;
         // Redirect based on user type
-        if ($userType == "admin") {
+        if ($userType == "admin" && $access == 1) {
             header("Location: admin_page.php");
-        } elseif ($userType == "student") {
+        } elseif ($userType == "student" && $access == 1) {
             header("Location: student_page.php");
         } else {
-            echo "Invalid user type";
+            echo "Invalid Username/Password or Missing Permissions.";
         }
 
         exit();
