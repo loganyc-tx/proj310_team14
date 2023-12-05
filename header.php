@@ -29,19 +29,19 @@ if (isset($_SESSION["uin"])) {
     <title>Your Page Title</title>
     <!-- Add your other head elements here -->
     <style>
-        /* Add your styles for the top-left area here */
-        .top-left {
+        /* Add your styles for the top-right area here */
+        .top-right {
             position: fixed;
             top: 0;
-            left: 0;
+            right: 0;
             padding: 10px;
         }
     </style>
 </head>
 <body>
 
-<!-- Display "Logged in as: $uin" and Logout button in the top-left corner -->
-<div class="top-left">
+<!-- Display "Logged in as: $uin" and Logout button in the top-right corner -->
+<div class="top-right">
     <span><?php echo $loggedInMessage; ?></span>
     <?php
     // Display the logout button if the user is logged in
