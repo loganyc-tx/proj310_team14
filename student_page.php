@@ -1,51 +1,319 @@
 <?php
+session_start();
+
+// Check if the user is logged in and is a student
+if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "student") {
+    header("Location: login.php"); // Redirect to login page if not logged in as a student
+    exit();
+}
+
 // Database connection parameters
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "csce310_team14";
+$host = "localhost";  // Change this to your database host
+$user = "root";       // Change this to your database username
+$password = "";       // Change this to your database password
+$database = "csce310_team14";  // Change this to your database name
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Create connection
+$conn = new mysqli($host, $user, $password, $database);
 
+// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle form submissions
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST["insert_student"])) {
-        // Insert new student
-        $new_student_username = $_POST['new_student_username'];
-        $new_student_password = md5($_POST['new_student_password']); // Use more secure methods in production
+// Retrieve student information using the stored UIN in the session
+if (isset($_SESSION["uin"])) {
+    $uin = $_SESSION["uin"];
+    // Rest of your code
+} else {
+    die("UIN not set in the session");
+}
+$result = $conn->query("SELECT * FROM user INNER JOIN college_student ON user.UIN = college_student.UIN WHERE user.UIN = '$uin'");
 
-        $insert_query = "INSERT INTO user (Username, Passwords, User_Type) VALUES ('$new_student_username', '$new_student_password', 'student')";
-        $conn->query($insert_query);
-    } elseif (isset($_POST["update_student"])) {
-        // Update existing student
-        $student_id_to_update = $_POST['student_id_to_update'];
-        $updated_student_password = md5($_POST['updated_student_password']); // Use more secure methods in production
+if ($result->num_rows > 0) {
+    $studentInfo = $result->fetch_assoc();
+} else {
+    die("Error retrieving student information");
+}
 
-        $update_query = "UPDATE user SET Passwords = '$updated_student_password' WHERE id = $student_id_to_update";
-        $conn->query($update_query);
-    } elseif (isset($_POST["delete_student"])) {
-        // Deactivate own account
-        $student_id_to_delete = $_SESSION['user_id'];
+// Function to update student information
+function updateStudentInfo($uin, $FirstName, $MiddleInitial, $LastName, $Username, $Password, $Email, $DiscordName, $Gender, $HispanicLatino, $Race, $USCitizen, $FirstGeneration, $DoB, $GPA, $Major, $Minor1, $Minor2, $ExpectedGraduation, $School, $Classification, $Phone, $StudentType)
+{
+    global $conn;
 
-        $delete_query = "UPDATE user SET User_Type = 'inactive' WHERE id = $student_id_to_delete";
-        $conn->query($delete_query);
+    // Check each field and add it to the array if it's not empty
+    $updateFields = array();
 
-        // Logout after deactivating account
-        session_destroy();
-        header("Location: login.html");
-        exit();
+    $updateFields[] = "First_Name='$FirstName'";
+    $updateFields[] = "M_Initial='$MiddleInitial'";
+    $updateFields[] = "Last_Name='$LastName'";
+    $updateFields[] = "Username='$Username'";
+    $updateFields[] = "Passwords='$Password'";
+    $updateFields[] = "Email='$Email'";
+    $updateFields[] = "Discord_Name='$DiscordName'";
+    $updateFields[] = "Gender='$Gender'";
+    $updateFields[] = "Hispanic_Latino='$HispanicLatino'";
+    $updateFields[] = "Race='$Race'";
+    $updateFields[] = "US_Citizen='$USCitizen'";
+    $updateFields[] = "First_Generation='$FirstGeneration'";
+    $updateFields[] = "DoB='$DoB'";
+    $updateFields[] = "GPA='$GPA'";
+    $updateFields[] = "Major='$Major'";
+    $updateFields[] = "Minor_1='$Minor1'";
+    $updateFields[] = "Minor_2='$Minor2'";
+    $updateFields[] = "Expected_Graduation='$ExpectedGraduation'";
+    $updateFields[] = "School='$School'";
+    $updateFields[] = "Classification='$Classification'";
+    $updateFields[] = "Phone='$Phone'";
+    $updateFields[] = "Student_Type='$StudentType'";
+
+    // If there are fields to update, build the SQL query and execute it
+    if (!empty($updateFields)) {
+        $updateFieldsStr = implode(", ", $updateFields);
+        $sql = "UPDATE user INNER JOIN college_student ON user.UIN = college_student.UIN SET $updateFieldsStr WHERE user.UIN='$uin'";
+
+        // Execute the query
+        if ($conn->query($sql)) {
+            return true;
+        } else {
+            // Improve error handling
+            die("Error updating student information: " . $conn->error);
+        }
+    } else {
+        // No fields to update
+        return true;
     }
 }
 
-// Select own profile information
-$student_id = $_SESSION['user_id'];
-$select_query = "SELECT * FROM user WHERE User_Type = 'student' AND id = $student_id";
-$result = $conn->query($select_query);
+// Check if the update form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["update_student_info"])) {
+    $FirstName = $_POST["FirstName"];
+    $MiddleInitial = $_POST["MiddleInitial"];
+    $LastName = $_POST["LastName"];
+    $Username = $_POST["Username"];
+    $Password = $_POST["Password"];
+    $Email = $_POST["Email"];
+    $DiscordName = $_POST["DiscordName"];
+    $Gender = $_POST["Gender"];
+    $HispanicLatino = $_POST["HispanicLatino"];
+    $Race = $_POST["Race"];
+    $USCitizen = $_POST["USCitizen"];
+    $FirstGeneration = $_POST["FirstGeneration"];
+    $DoB = $_POST["DoB"];
+    $GPA = $_POST["GPA"];
+    $Major = $_POST["Major"];
+    $Minor1 = $_POST["Minor1"];
+    $Minor2 = $_POST["Minor2"];
+    $ExpectedGraduation = $_POST["ExpectedGraduation"];
+    $School = $_POST["School"];
+    $Classification = $_POST["Classification"];
+    $Phone = $_POST["Phone"];
+    $StudentType = $_POST["StudentType"];
+
+    if (updateStudentInfo($uin, $FirstName, $MiddleInitial, $LastName, $Username, $Password, $Email, $DiscordName, $Gender, $HispanicLatino, $Race, $USCitizen, $FirstGeneration, $DoB, $GPA, $Major, $Minor1, $Minor2, $ExpectedGraduation, $School, $Classification, $Phone, $StudentType)) {
+        echo "Student information updated successfully!";
+        // Refresh studentInfo after update
+        $result = $conn->query("SELECT * FROM user INNER JOIN college_student ON user.UIN = college_student.UIN WHERE user.UIN = '$uin'");
+        if ($result->num_rows > 0) {
+            $studentInfo = $result->fetch_assoc();
+        } else {
+            die("Error retrieving updated student information");
+        }
+    } else {
+        echo "Error updating student information.";
+    }
+}
+
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["deactivate_account"])) {
+    // Add code to update the database and deactivate the account
+    $sql = "UPDATE user SET access = 0 WHERE UIN='$uin'";
+    if ($conn->query($sql)) {
+        // Deactivate successful, end the session and redirect
+        session_destroy();
+        header("Location: index.php");
+        exit();
+    } else {
+        // Error handling for database update
+        die("Error deactivating account: " . $conn->error);
+    }
+}
+
+$conn->close();
 ?>
+<?php include 'header.php'; ?>
+<!DOCTYPE html>
+<html lang="en">
 
-<!-- The rest of your HTML for the student page remains unchanged -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information</title>
 
+    <script>
+        function confirmDeactivation() {
+            var confirmDeactivate = confirm("Are you sure you want to deactivate your account?");
+            if (confirmDeactivate) {
+                document.getElementById("deactivateForm").submit();
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    <h2>Student Information</h2>
+
+    <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+        <!-- Display UIN (assuming it's read-only) -->
+        <div>
+            <label for="UIN">UIN:</label>
+            <input type="text" id="UIN" name="UIN" value="<?php echo $studentInfo['UIN']; ?>" readonly>
+        </div>
+
+        <!-- Editable fields -->
+        <div>
+            <label for="FirstName">First Name:</label>
+            <input type="text" id="FirstName" name="FirstName" value="<?php echo $studentInfo['First_Name']; ?>">
+        </div>
+
+        <div>
+            <label for="MiddleInitial">Middle Initial:</label>
+            <input type="text" id="MiddleInitial" name="MiddleInitial" value="<?php echo $studentInfo['M_Initial']; ?>">
+        </div>
+
+        <div>
+            <label for="LastName">Last Name:</label>
+            <input type="text" id="LastName" name="LastName" value="<?php echo $studentInfo['Last_Name']; ?>">
+        </div>
+
+        <div>
+            <label for="Username">Username:</label>
+            <input type="text" id="Username" name="Username" value="<?php echo $studentInfo['Username']; ?>">
+        </div>
+
+        <div>
+            <label for="Password">Password:</label>
+            <input type="password" id="Password" name="Password" value="<?php echo $studentInfo['Passwords']; ?>">
+        </div>
+
+        <div>
+            <label for="Email">Email:</label>
+            <input type="text" id="Email" name="Email" value="<?php echo $studentInfo['Email']; ?>">
+        </div>
+
+        <div>
+            <label for="DiscordName">Discord Name:</label>
+            <input type="text" id="DiscordName" name="DiscordName" value="<?php echo $studentInfo['Discord_Name']; ?>">
+        </div>
+
+        <div>
+            <label for="Gender">Gender:</label>
+            <input type="text" id="Gender" name="Gender" value="<?php echo $studentInfo['Gender']; ?>">
+        </div>
+
+        <div>
+            <label for="HispanicLatino">Hispanic/Latino:</label>
+            <input type="hidden" name="HispanicLatino" value="0">
+            <input type="hidden" name="HispanicLatino" value="1">
+            <select id="HispanicLatinoSelect" name="HispanicLatino">
+                <option value="0" <?php echo $studentInfo['Hispanic_Latino'] == 0 ? 'selected' : ''; ?>>No</option>
+                <option value="1" <?php echo $studentInfo['Hispanic_Latino'] == 1 ? 'selected' : ''; ?>>Yes</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="Race">Race:</label>
+            <input type="text" id="Race" name="Race" value="<?php echo $studentInfo['Race']; ?>">
+        </div>
+        <div>
+            <label for="USCitizen">US Citizen:</label>
+            <input type="hidden" name="USCitizen" value="0">
+            <input type="hidden" name="USCitizen" value="1">
+            <select id="USCitizenSelect" name="USCitizen">
+                <option value="0" <?php echo $studentInfo['US_Citizen'] == 0 ? 'selected' : ''; ?>>No</option>
+                <option value="1" <?php echo $studentInfo['US_Citizen'] == 1 ? 'selected' : ''; ?>>Yes</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="FirstGeneration">First Generation:</label>
+            <input type="hidden" name="FirstGeneration" value="0">
+            <input type="hidden" name="FirstGeneration" value="1">
+            <select id="FirstGenerationSelect" name="FirstGeneration">
+                <option value="0" <?php echo $studentInfo['First_Generation'] == 0 ? 'selected' : ''; ?>>No</option>
+                <option value="1" <?php echo $studentInfo['First_Generation'] == 1 ? 'selected' : ''; ?>>Yes</option>
+            </select>
+        </div>
+
+
+        <div>
+            <label for="DoB">Date of Birth:</label>
+            <input type="date" id="DoB" name="DoB" value="<?php echo $studentInfo['DoB']; ?>">
+        </div>
+
+        <div>
+            <label for="GPA">GPA:</label>
+            <input type="text" id="GPA" name="GPA" value="<?php echo $studentInfo['GPA']; ?>">
+        </div>
+
+        <div>
+            <label for="Major">Major:</label>
+            <input type="text" id="Major" name="Major" value="<?php echo $studentInfo['Major']; ?>">
+        </div>
+
+        <div>
+            <label for="Minor1">Minor 1:</label>
+            <input type="text" id="Minor1" name="Minor1" value="<?php echo $studentInfo['Minor_1']; ?>">
+        </div>
+
+        <div>
+            <label for="Minor2">Minor 2:</label>
+            <input type="text" id="Minor2" name="Minor2" value="<?php echo $studentInfo['Minor_2']; ?>">
+        </div>
+
+        <div>
+            <label for="ExpectedGraduation">Expected Graduation:</label>
+            <input type="text" id="ExpectedGraduation" name="ExpectedGraduation"
+                value="<?php echo $studentInfo['Expected_Graduation']; ?>">
+        </div>
+
+        <div>
+            <label for="School">School:</label>
+            <input type="text" id="School" name="School" value="<?php echo $studentInfo['School']; ?>">
+        </div>
+
+        <div>
+            <label for="Classification">Classification:</label>
+            <input type="text" id="Classification" name="Classification"
+                value="<?php echo $studentInfo['Classification']; ?>">
+        </div>
+
+        <div>
+            <label for="Phone">Phone:</label>
+            <input type="text" id="Phone" name="Phone" value="<?php echo $studentInfo['Phone']; ?>">
+        </div>
+
+        <div>
+            <label for="StudentType">Student Type:</label>
+            <input type="text" id="StudentType" name="StudentType" value="<?php echo $studentInfo['Student_Type']; ?>">
+        </div>
+
+        <div>
+            <input type="submit" name="update_student_info" value="Update Information">
+        </div>
+    </form>
+
+
+    <!-- Deactivate Account Form -->
+    <form id="deactivateForm" method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+        <input type="hidden" name="deactivate_account">
+    </form>
+
+    <!-- Deactivate Account Button -->
+    <div>
+        <input type="button" onclick="confirmDeactivation()" value="Deactivate Account">
+    </div>
+</body>
+
+</html>

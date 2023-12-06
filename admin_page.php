@@ -266,7 +266,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["view_users"])) {
 
     if ($selectedUserType === "admin") {
         // Display the 'user' table for admin users
-        $result = $conn->query("SELECT * FROM user WHERE User_Type = 'admin'");
+        $result = $conn->query("SELECT * FROM user USE INDEX (admin_search) WHERE User_Type = 'admin'");
         displayAdminTable($result);
     } elseif ($selectedUserType === "student") {
         // Display the 'studenttable' view for student users
@@ -293,12 +293,15 @@ function displayAdminTable($result)
         echo "No results found.";
     }
 }
+// Function to display a table based on the query result// Function to display a table based on the query result
 function displayStudentTable($result)
 {
+    global $conn; // Add this line to use the global connection object
+
     if ($result->num_rows > 0) {
         echo "<table border='1'>";
         echo "<tr><th>User Type</th><th>UIN</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Discord Name</th><th>Access</th><th>Gender</th><th>Hispanic/Latino</th><th>Race</th><th>US Citizen</th><th>First Generation</th><th>DoB</th><th>GPA</th><th>Major</th><th>Minor #1</th>
-        <th>Minor #2</th><th>Expected Graduation</th><th>School</th><th>Classification</th><th>Phone</th><th>Student Type</th></tr>";
+            <th>Minor #2</th><th>Expected Graduation</th><th>School</th><th>Classification</th><th>Phone</th><th>Student Type</th></tr>";
 
         while ($row = $result->fetch_assoc()) {
             echo "<tr><td>" . $row["User_Type"] . "</td><td>" . $row["UIN"] . "</td><td>" . $row["First_Name"] . "</td><td>" . $row["Last_Name"] . "</td><td>" . $row["Email"] . "</td><td>" . $row["Discord_Name"] . "</td><td>" . $row["access"] . "</td><td>" . $row["Gender"] . "</td><td>" . $row["Hispanic_Latino"] . "</td><td>" . $row["Race"] . "</td><td>"
@@ -311,6 +314,8 @@ function displayStudentTable($result)
         echo "No results found.";
     }
 }
+
+
 
 // Function to delete user from both user and college_student tables
 function deleteUser($UIN)
@@ -432,7 +437,7 @@ $conn->close();
             <input type="text" name="First_Generation"><br>
 
             <label for="DoB">Date of Birth:</label>
-            <input type="text" name="DoB"><br>
+            <input type="date" name="DoB"><br>
 
             <label for="GPA">GPA:</label>
             <input type="text" name="GPA"><br>
@@ -520,7 +525,7 @@ $conn->close();
             <input type="text" name="First_Generation"><br>
 
             <label for="DoB">Date of Birth:</label>
-            <input type="text" name="DoB"><br>
+            <input type="date" name="DoB"><br>
 
             <label for="GPA">GPA:</label>
             <input type="text" name="GPA"><br>
