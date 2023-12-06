@@ -31,9 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION["uin"] = $uin;
         // Redirect based on user type
         if ($userType == "admin" && $access == 1) {
-            header("Location: admin_page.php");
+            header("Location: admin_landing.php");
         } elseif ($userType == "student" && $access == 1) {
-            header("Location: student_page.php");
+            header("Location: student_landing.php");
         } else {
             echo "Invalid Username/Password or Missing Permissions.";
         }
