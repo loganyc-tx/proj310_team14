@@ -1,3 +1,12 @@
+<?php
+session_start();
+
+// Check if the user is logged in and is a student
+if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "admin") {
+    header("Location: login.php"); // Redirect to login page if not logged in as a student
+    exit();
+}
+?>
 <?php include 'header.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
