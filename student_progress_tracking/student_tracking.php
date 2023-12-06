@@ -40,6 +40,7 @@ $uin = "123456789"
             <!-- Certification Status Search -->
             <button><a href="certification_tracking/certification_tracking.php">Certification Tracking</a></button>
             <!-- Internship Status Search -->
+            <button><a href="internship_tracking/internship_tracking.php">Internship Tracking</a></button>
         </div>
     </div>
 </body>
