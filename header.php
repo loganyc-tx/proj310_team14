@@ -5,15 +5,14 @@ function logout() {
     // Unset all session variables
     $_SESSION = array();
 
-    // Destroy the session
     session_destroy();
 
-    // Redirect to the index page or login page
-    header("Location: index.php"); // Change 'index.php' to your desired destination
+    // Redirect to the index page
+    header("Location: index.php");
     exit();
 }
 
-// Display "Logged in as: $uin" and Logout button in the top-left corner
+// Display "Logged in as: $uin" and Logout button
 $loggedInMessage = "";
 if (isset($_SESSION["uin"])) {
     $uin = $_SESSION["uin"];
@@ -27,9 +26,7 @@ if (isset($_SESSION["uin"])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Page Title</title>
-    <!-- Add your other head elements here -->
     <style>
-        /* Add your styles for the top-right area here */
         .top-right {
             position: fixed;
             top: 0;
@@ -40,7 +37,7 @@ if (isset($_SESSION["uin"])) {
 </head>
 <body>
 
-<!-- Display "Logged in as: $uin" and Logout button in the top-right corner -->
+<!-- Display "Logged in as: $uin" and Logout button -->
 <div class="top-right">
     <span><?php echo $loggedInMessage; ?></span>
     <?php

@@ -8,10 +8,10 @@ if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "student") {
 }
 
 // Database connection parameters
-$host = "localhost";  // Change this to your database host
-$user = "root";       // Change this to your database username
-$password = "";       // Change this to your database password
-$database = "csce310_team14";  // Change this to your database name
+$host = "localhost"; 
+$user = "root";
+$password = "";
+$database = "csce310_team14";
 
 // Create connection
 $conn = new mysqli($host, $user, $password, $database);
@@ -24,10 +24,10 @@ if ($conn->connect_error) {
 // Retrieve student information using the stored UIN in the session
 if (isset($_SESSION["uin"])) {
     $uin = $_SESSION["uin"];
-    // Rest of your code
 } else {
     die("UIN not set in the session");
 }
+// Query information from the user and college_student table
 $result = $conn->query("SELECT * FROM user INNER JOIN college_student ON user.UIN = college_student.UIN WHERE user.UIN = '$uin'");
 
 if ($result->num_rows > 0) {
@@ -126,7 +126,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["update_student_info"])
 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["deactivate_account"])) {
-    // Add code to update the database and deactivate the account
     $sql = "UPDATE user SET access = 0 WHERE UIN='$uin'";
     if ($conn->query($sql)) {
         // Deactivate successful, end the session and redirect
@@ -151,6 +150,7 @@ $conn->close();
     <title>Student Information</title>
 
     <script>
+        // Double-check that they really want to deactivate the account
         function confirmDeactivation() {
             var confirmDeactivate = confirm("Are you sure you want to deactivate your account?");
             if (confirmDeactivate) {
@@ -165,7 +165,7 @@ $conn->close();
     <h2>Student Information</h2>
 
     <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-        <!-- Display UIN (assuming it's read-only) -->
+        <!-- Display UIN READ ONLY -->
         <div>
             <label for="UIN">UIN:</label>
             <input type="text" id="UIN" name="UIN" value="<?php echo $studentInfo['UIN']; ?>" readonly>

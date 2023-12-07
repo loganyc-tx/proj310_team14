@@ -1,15 +1,17 @@
 <?php
 session_start();
+
 // Check if the user is logged in and is an admin
 if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "admin") {
     http_response_code(401); // Unauthorized
     exit();
 }
+
 // Database connection parameters
-$host = "localhost";  // Change this to your database host
-$user = "root";       // Change this to your database username
-$password = "";       // Change this to your database password
-$database = "csce310_team14";  // Change this to your database name
+$host = "localhost";
+$user = "root";
+$password = ""; 
+$database = "csce310_team14";
 
 // Create connection
 $conn = new mysqli($host, $user, $password, $database);
@@ -19,12 +21,12 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-
 // Function to insert user into the user table
 function insertUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Password, $User_Type, $Email, $Discord_Name, $access)
 {
     global $conn;
-    $sql = "INSERT INTO user (UIN, First_Name, M_Initial, Last_Name, Username, Passwords, User_Type, Email, Discord_Name, access) VALUES ('$UIN', '$First_Name', '$M_Initial', '$Last_Name', '$Username', '$Password', '$User_Type', '$Email', '$Discord_Name', '$access')";
+    $sql = "INSERT INTO user (UIN, First_Name, M_Initial, Last_Name, Username, Passwords, User_Type, Email, Discord_Name, access)
+            VALUES ('$UIN', '$First_Name', '$M_Initial', '$Last_Name', '$Username', '$Password', '$User_Type', '$Email', '$Discord_Name', '$access')";
     return $conn->query($sql);
 }
 
@@ -32,7 +34,8 @@ function insertUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
 function insertStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $First_Generation, $DoB, $GPA, $Major, $Minor_1, $Minor_2, $Expected_Graduation, $School, $Classification, $Phone, $Student_Type)
 {
     global $conn;
-    $sql = "INSERT INTO college_student (UIN, Gender, Hispanic_Latino, Race, US_Citizen, First_Generation, DoB, GPA, Major, Minor_1, Minor_2, Expected_Graduation, School, Classification, Phone, Student_Type) VALUES ('$UIN', '$Gender', '$Hispanic_Latino', '$Race', '$US_Citizen', '$First_Generation', '$DoB', '$GPA', '$Major', '$Minor_1', '$Minor_2', '$Expected_Graduation', '$School', '$Classification', '$Phone', '$Student_Type')";
+    $sql = "INSERT INTO college_student (UIN, Gender, Hispanic_Latino, Race, US_Citizen, First_Generation, DoB, GPA, Major, Minor_1, Minor_2, Expected_Graduation, School, Classification, Phone, Student_Type)
+            VALUES ('$UIN', '$Gender', '$Hispanic_Latino', '$Race', '$US_Citizen', '$First_Generation', '$DoB', '$GPA', '$Major', '$Minor_1', '$Minor_2', '$Expected_Graduation', '$School', '$Classification', '$Phone', '$Student_Type')";
     return $conn->query($sql);
 }
 
@@ -100,6 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["insert_user"])) {
         echo "Invalid user type";
     }
 }
+
 
 function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Password, $User_Type, $Email, $Discord_Name, $access)
 {
