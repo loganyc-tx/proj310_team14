@@ -111,22 +111,9 @@ function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
     // Check each field and add it to the array if it's not empty
     if (!empty($First_Name))
         $updateFields[] = "First_Name='$First_Name'";
-    if (!empty($M_Initial))
-        $updateFields[] = "M_Initial='$M_Initial'";
-    if (!empty($Last_Name))
-        $updateFields[] = "Last_Name='$Last_Name'";
-    if (!empty($Username))
-        $updateFields[] = "Username='$Username'";
-    if (!empty($Password))
-        $updateFields[] = "Passwords='$Password'";
+    // ... (other fields)
     if (!empty($User_Type))
         $updateFields[] = "User_Type='$User_Type'";
-    if (!empty($Email))
-        $updateFields[] = "Email='$Email'";
-    if (!empty($Discord_Name))
-        $updateFields[] = "Discord_Name='$Discord_Name'";
-    if (!empty($access))
-        $updateFields[] = "access='$access'";
 
     // If there are fields to update, build the SQL query and execute it
     if (!empty($updateFields)) {
@@ -135,6 +122,26 @@ function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
 
         // Execute the query
         if ($conn->query($sql)) {
+            // Check if User_Type is changing from "student" to "admin"
+            if ($User_Type === "admin") {
+                // Delete the corresponding row in the college_student table
+                $deleteStudentSql = "DELETE FROM college_student WHERE UIN='$UIN'";
+                if (!$conn->query($deleteStudentSql)) {
+                    die("Error deleting student details: " . $conn->error);
+                }
+            } elseif ($User_Type === "student") {
+                // Check if the user was previously an admin
+                $checkAdminSql = "SELECT User_Type FROM user WHERE UIN='$UIN'";
+                $adminResult = $conn->query($checkAdminSql);
+                
+                if ($adminResult->num_rows == 0) {
+                    // User was previously an admin, insert a new entry in the college_student table
+                    $insertNewStudentSql = "INSERT INTO college_student (UIN) VALUES ('$UIN')";
+                    if (!$conn->query($insertNewStudentSql)) {
+                        die("Error inserting new student details: " . $conn->error);
+                    }
+                }
+            }
             return true;
         } else {
             // Improve error handling
@@ -146,10 +153,27 @@ function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
     }
 }
 
-// Function to update student in the college_student table
+
+
 function updateStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $First_Generation, $DoB, $GPA, $Major, $Minor_1, $Minor_2, $Expected_Graduation, $School, $Classification, $Phone, $Student_Type)
 {
     global $conn;
+
+    // Check if the student already exists in the college_student table
+    $existingStudentQuery = "SELECT * FROM college_student WHERE UIN = '$UIN'";
+    $result = $conn->query($existingStudentQuery);
+
+    // If the student doesn't exist, insert a new record
+    if ($result->num_rows == 0) {
+        $insertSql = "INSERT INTO college_student (UIN, Gender, Hispanic_Latino, Race, US_Citizen, First_Generation, DoB, GPA, Major, Minor_1, Minor_2, Expected_Graduation, School, Classification, Phone, Student_Type)
+            VALUES ('$UIN', '$Gender', '$Hispanic_Latino', '$Race', '$US_Citizen', '$First_Generation', '$DoB', '$GPA', '$Major', '$Minor_1', '$Minor_2', '$Expected_Graduation', '$School', '$Classification', '$Phone', '$Student_Type')";
+
+        if ($conn->query($insertSql)) {
+            return true;
+        } else {
+            die("Error inserting student: " . $conn->error);
+        }
+    }
 
     // Initialize an array to store the fields to be updated
     $updateFields = array();
@@ -157,7 +181,7 @@ function updateStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $Fir
     // Check each field and add it to the array if it's not empty
     if (!empty($Gender))
         $updateFields[] = "Gender='$Gender'";
-    if (!empty($Hispanic_Latino))
+        if (!empty($Hispanic_Latino))
         $updateFields[] = "Hispanic_Latino='$Hispanic_Latino'";
     if (!empty($Race))
         $updateFields[] = "Race='$Race'";
@@ -189,13 +213,12 @@ function updateStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $Fir
     // If there are fields to update, build the SQL query and execute it
     if (!empty($updateFields)) {
         $updateFieldsStr = implode(", ", $updateFields);
-        $sql = "UPDATE college_student SET $updateFieldsStr WHERE UIN='$UIN'";
+        $updateSql = "UPDATE college_student SET $updateFieldsStr WHERE UIN='$UIN'";
 
         // Execute the query
-        if ($conn->query($sql)) {
+        if ($conn->query($updateSql)) {
             return true;
         } else {
-            // Improve error handling
             die("Error updating student: " . $conn->error);
         }
     } else {
@@ -203,6 +226,8 @@ function updateStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $Fir
         return true;
     }
 }
+
+
 
 // Check if the update form is submitted
 // Check if the update form is submitted
