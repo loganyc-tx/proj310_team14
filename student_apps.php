@@ -54,7 +54,7 @@ function insertApplication($program_num, $uncom_cert = '', $com_cert = '', $purp
     global $conn;
     $UIN = $_SESSION["uin"];
     $stmt = $conn->prepare("INSERT INTO applications (Program_Num, UIN, Uncom_Cert, Com_Cert, Purpose_Statement) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("iissi", $program_num, $UIN, $uncom_cert, $com_cert, $purpose_statement);
+    $stmt->bind_param("iisss", $program_num, $UIN, $uncom_cert, $com_cert, $purpose_statement);
     
     if ($stmt->execute()) {
         $newAppNum = $conn->insert_id;
@@ -176,9 +176,79 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App Page (Student)</title>
-    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"], button {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover, button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
+    <nav>
+        <ul>
+            <li><a href="student_landing.php">Return to landing</a></li>
+        </ul>
+        </ul>
+    </nav>
     <h2>Student Functionalities</h2>
 
     <!-- Insert -->
