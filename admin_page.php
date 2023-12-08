@@ -1,15 +1,19 @@
+<!-- COMPLETED BY SAM HIRVILAMPI -->
 <?php
+error_reporting(E_ERROR | E_PARSE);
 session_start();
+
 // Check if the user is logged in and is an admin
 if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "admin") {
     http_response_code(401); // Unauthorized
     exit();
 }
+
 // Database connection parameters
-$host = "localhost";  // Change this to your database host
-$user = "root";       // Change this to your database username
-$password = "";       // Change this to your database password
-$database = "csce310_team14";  // Change this to your database name
+$host = "localhost";
+$user = "root";
+$password = ""; 
+$database = "csce310_team14";
 
 // Create connection
 $conn = new mysqli($host, $user, $password, $database);
@@ -19,12 +23,13 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-
 // Function to insert user into the user table
 function insertUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Password, $User_Type, $Email, $Discord_Name, $access)
 {
     global $conn;
-    $sql = "INSERT INTO user (UIN, First_Name, M_Initial, Last_Name, Username, Passwords, User_Type, Email, Discord_Name, access) VALUES ('$UIN', '$First_Name', '$M_Initial', '$Last_Name', '$Username', '$Password', '$User_Type', '$Email', '$Discord_Name', '$access')";
+    $accessValue = ($access === "0") ? "0" : $access;
+    $sql = "INSERT INTO user (UIN, First_Name, M_Initial, Last_Name, Username, Passwords, User_Type, Email, Discord_Name, access)
+            VALUES ('$UIN', '$First_Name', '$M_Initial', '$Last_Name', '$Username', '$Password', '$User_Type', '$Email', '$Discord_Name', '$accessValue')";
     return $conn->query($sql);
 }
 
@@ -32,7 +37,8 @@ function insertUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
 function insertStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $First_Generation, $DoB, $GPA, $Major, $Minor_1, $Minor_2, $Expected_Graduation, $School, $Classification, $Phone, $Student_Type)
 {
     global $conn;
-    $sql = "INSERT INTO college_student (UIN, Gender, Hispanic_Latino, Race, US_Citizen, First_Generation, DoB, GPA, Major, Minor_1, Minor_2, Expected_Graduation, School, Classification, Phone, Student_Type) VALUES ('$UIN', '$Gender', '$Hispanic_Latino', '$Race', '$US_Citizen', '$First_Generation', '$DoB', '$GPA', '$Major', '$Minor_1', '$Minor_2', '$Expected_Graduation', '$School', '$Classification', '$Phone', '$Student_Type')";
+    $sql = "INSERT INTO college_student (UIN, Gender, Hispanic_Latino, Race, US_Citizen, First_Generation, DoB, GPA, Major, Minor_1, Minor_2, Expected_Graduation, School, Classification, Phone, Student_Type)
+            VALUES ('$UIN', '$Gender', '$Hispanic_Latino', '$Race', '$US_Citizen', '$First_Generation', '$DoB', '$GPA', '$Major', '$Minor_1', '$Minor_2', '$Expected_Graduation', '$School', '$Classification', '$Phone', '$Student_Type')";
     return $conn->query($sql);
 }
 
@@ -101,13 +107,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["insert_user"])) {
     }
 }
 
+
 function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Password, $User_Type, $Email, $Discord_Name, $access)
 {
     global $conn;
 
     // Initialize an array to store the fields to be updated
     $updateFields = array();
-
     // Check each field and add it to the array if it's not empty
     if (!empty($First_Name))
         $updateFields[] = "First_Name='$First_Name'";
@@ -126,7 +132,9 @@ function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
     if (!empty($Discord_Name))
         $updateFields[] = "Discord_Name='$Discord_Name'";
     if (!empty($access))
-        $updateFields[] = "access='$access'";
+        $accessValue = ($access === "0") ? "0" : $access;
+        $updateFields[] = "access='$accessValue'";
+        //$updateFields[] = "access='$access'";
 
     // If there are fields to update, build the SQL query and execute it
     if (!empty($updateFields)) {
@@ -135,6 +143,26 @@ function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
 
         // Execute the query
         if ($conn->query($sql)) {
+            // Check if User_Type is changing from "student" to "admin"
+            if ($User_Type === "admin") {
+                // Delete the corresponding row in the college_student table
+                $deleteStudentSql = "DELETE FROM college_student WHERE UIN='$UIN'";
+                if (!$conn->query($deleteStudentSql)) {
+                    die("Error deleting student details: " . $conn->error);
+                }
+            } elseif ($User_Type === "student") {
+                // Check if the user was previously an admin
+                $checkAdminSql = "SELECT User_Type FROM user WHERE UIN='$UIN'";
+                $adminResult = $conn->query($checkAdminSql);
+                
+                if ($adminResult->num_rows == 0) {
+                    // User was previously an admin, insert a new entry in the college_student table
+                    $insertNewStudentSql = "INSERT INTO college_student (UIN) VALUES ('$UIN')";
+                    if (!$conn->query($insertNewStudentSql)) {
+                        die("Error inserting new student details: " . $conn->error);
+                    }
+                }
+            }
             return true;
         } else {
             // Improve error handling
@@ -146,10 +174,27 @@ function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
     }
 }
 
-// Function to update student in the college_student table
+
+
 function updateStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $First_Generation, $DoB, $GPA, $Major, $Minor_1, $Minor_2, $Expected_Graduation, $School, $Classification, $Phone, $Student_Type)
 {
     global $conn;
+
+    // Check if the student already exists in the college_student table
+    $existingStudentQuery = "SELECT * FROM college_student WHERE UIN = '$UIN'";
+    $result = $conn->query($existingStudentQuery);
+
+    // If the student doesn't exist, insert a new record
+    if ($result->num_rows == 0) {
+        $insertSql = "INSERT INTO college_student (UIN, Gender, Hispanic_Latino, Race, US_Citizen, First_Generation, DoB, GPA, Major, Minor_1, Minor_2, Expected_Graduation, School, Classification, Phone, Student_Type)
+            VALUES ('$UIN', '$Gender', '$Hispanic_Latino', '$Race', '$US_Citizen', '$First_Generation', '$DoB', '$GPA', '$Major', '$Minor_1', '$Minor_2', '$Expected_Graduation', '$School', '$Classification', '$Phone', '$Student_Type')";
+
+        if ($conn->query($insertSql)) {
+            return true;
+        } else {
+            die("Error inserting student: " . $conn->error);
+        }
+    }
 
     // Initialize an array to store the fields to be updated
     $updateFields = array();
@@ -157,14 +202,17 @@ function updateStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $Fir
     // Check each field and add it to the array if it's not empty
     if (!empty($Gender))
         $updateFields[] = "Gender='$Gender'";
-    if (!empty($Hispanic_Latino))
-        $updateFields[] = "Hispanic_Latino='$Hispanic_Latino'";
+        if (!empty($Hispanic_Latino))
+        $hlValue = ($Hispanic_Latino === "0") ? "0" : $Hispanic_Latino;
+        $updateFields[] = "First_Generation='$hlValue'";
     if (!empty($Race))
         $updateFields[] = "Race='$Race'";
     if (!empty($US_Citizen))
-        $updateFields[] = "US_Citizen='$US_Citizen'";
+        $usValue = ($US_Citizen === "0") ? "0" : $US_Citizen;
+        $updateFields[] = "US_Citizen='$usValue'";
     if (!empty($First_Generation))
-        $updateFields[] = "First_Generation='$First_Generation'";
+        $fgValue = ($First_Generation === "0") ? "0" : $First_Generation;
+        $updateFields[] = "First_Generation='$fgValue'";
     if (!empty($DoB))
         $updateFields[] = "DoB='$DoB'";
     if (!empty($GPA))
@@ -189,13 +237,12 @@ function updateStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $Fir
     // If there are fields to update, build the SQL query and execute it
     if (!empty($updateFields)) {
         $updateFieldsStr = implode(", ", $updateFields);
-        $sql = "UPDATE college_student SET $updateFieldsStr WHERE UIN='$UIN'";
+        $updateSql = "UPDATE college_student SET $updateFieldsStr WHERE UIN='$UIN'";
 
         // Execute the query
-        if ($conn->query($sql)) {
+        if ($conn->query($updateSql)) {
             return true;
         } else {
-            // Improve error handling
             die("Error updating student: " . $conn->error);
         }
     } else {
@@ -203,6 +250,8 @@ function updateStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $Fir
         return true;
     }
 }
+
+
 
 // Check if the update form is submitted
 // Check if the update form is submitted
@@ -282,10 +331,10 @@ function displayAdminTable($result)
 {
     if ($result->num_rows > 0) {
         echo "<table border='1'>";
-        echo "<tr><th>User Type</th><th>UIN</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Discord</th><th>Access</th></tr>";
+        echo "<tr><th>User Type</th><th>UIN</th><th>First Name</th><th>Middle Initial</th><th>Last Name</th><th>Email</th><th>Discord</th><th>Access</th></tr>";
 
         while ($row = $result->fetch_assoc()) {
-            echo "<tr><td>" . $row["User_Type"] . "</td><td>" . $row["UIN"] . "</td><td>" . $row["First_Name"] . "</td><td>" . $row["Last_Name"] . "</td><td>" . $row["Email"] . "</td><td>" . $row["Discord_Name"] . "</td><td>" . $row["access"] . "</td></tr>";
+            echo "<tr><td>" . $row["User_Type"] . "</td><td>" . $row["UIN"] . "</td><td>" . $row["First_Name"] . "</td><td>" . $row["M_Initial"] . "</td><td>" . $row["Last_Name"] . "</td><td>" . $row["Email"] . "</td><td>" . $row["Discord_Name"] . "</td><td>" . $row["access"] . "</td></tr>";
         }
 
         echo "</table>";
@@ -300,11 +349,11 @@ function displayStudentTable($result)
 
     if ($result->num_rows > 0) {
         echo "<table border='1'>";
-        echo "<tr><th>User Type</th><th>UIN</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Discord Name</th><th>Access</th><th>Gender</th><th>Hispanic/Latino</th><th>Race</th><th>US Citizen</th><th>First Generation</th><th>DoB</th><th>GPA</th><th>Major</th><th>Minor #1</th>
+        echo "<tr><th>User Type</th><th>UIN</th><th>First Name</th><th>Middle Initial</th><th>Last Name</th><th>Email</th><th>Discord Name</th><th>Access</th><th>Gender</th><th>Hispanic/Latino</th><th>Race</th><th>US Citizen</th><th>First Generation</th><th>DoB</th><th>GPA</th><th>Major</th><th>Minor #1</th>
             <th>Minor #2</th><th>Expected Graduation</th><th>School</th><th>Classification</th><th>Phone</th><th>Student Type</th></tr>";
 
         while ($row = $result->fetch_assoc()) {
-            echo "<tr><td>" . $row["User_Type"] . "</td><td>" . $row["UIN"] . "</td><td>" . $row["First_Name"] . "</td><td>" . $row["Last_Name"] . "</td><td>" . $row["Email"] . "</td><td>" . $row["Discord_Name"] . "</td><td>" . $row["access"] . "</td><td>" . $row["Gender"] . "</td><td>" . $row["Hispanic_Latino"] . "</td><td>" . $row["Race"] . "</td><td>"
+            echo "<tr><td>" . $row["User_Type"] . "</td><td>" . $row["UIN"] . "</td><td>" . $row["First_Name"] . "</td><td>" . $row["M_Initial"] . "</td><td>" . $row["Last_Name"] . "</td><td>" . $row["Email"] . "</td><td>" . $row["Discord_Name"] . "</td><td>" . $row["access"] . "</td><td>" . $row["Gender"] . "</td><td>" . $row["Hispanic_Latino"] . "</td><td>" . $row["Race"] . "</td><td>"
                 . $row["US_Citizen"] . "</td><td>" . $row["First_Generation"] . "</td><td>" . $row["DoB"] . "</td><td>" . $row["GPA"] . "</td><td>" . $row["Major"] . "</td><td>" . $row["Minor_1"] . "</td><td>" . $row["Minor_2"] . "</td><td>" . $row["Expected_Graduation"] . "</td><td>" . $row["School"] . "</td><td>" . $row["Classification"] . "</td><td>"
                 . $row["Phone"] . "</td><td>" . $row["Student_Type"] . "</td></tr>";
         }

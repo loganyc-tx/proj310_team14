@@ -1,3 +1,4 @@
+<!-- COMPLETED BY SAM HIRVILAMPI -->
 <?php
 session_start();
 

@@ -1,9 +1,10 @@
+<!-- COMPLETED BY SAM HIRVILAMPI -->
 <?php
 // Establish a connection to the database
-$host = "localhost";  // Change this to your database host
-$user = "root";       // Change this to your database username
-$password = "";       // Change this to your database password
-$database = "csce310_team14";  // Change this to your database name
+$host = "localhost"; 
+$user = "root";     
+$password = "";    
+$database = "csce310_team14";
 
 $conn = new mysqli($host, $user, $password, $database);
 
@@ -17,14 +18,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST["username"];
     $password = $_POST["password"];
 
-    // Use prepared statements to prevent SQL injection
+    // Querying login info.
     $stmt = $conn->prepare("SELECT UIN, User_Type, access FROM user WHERE Username=? AND Passwords=?");
     $stmt->bind_param("ss", $username, $password);
     $stmt->execute();
     $stmt->bind_result($uin, $userType, $access);
 
     if ($stmt->fetch()) {
-        // Login successful
+        // Saved information into the session
         session_start();
         $_SESSION["username"] = $username;
         $_SESSION["userType"] = $userType;

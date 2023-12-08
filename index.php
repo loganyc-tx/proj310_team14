@@ -1,3 +1,4 @@
+<!-- COMPLETED BY SAM HIRVILAMPI -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -119,10 +120,11 @@
     </div>
 
     <script>
+        // Function to open the signup popup
         function openPopup() {
             document.getElementById("signupPopup").style.display = "block";
         }
-
+        // Function to close the signup popup
         function closePopup() {
             document.getElementById("signupPopup").style.display = "none";
         }
