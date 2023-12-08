@@ -88,23 +88,23 @@ function selectApplication() {
     global $conn; // Assuming $conn is your database connection object
     $UIN = $_SESSION["uin"];
     // Prepare the SQL statement
-    $stmt = $conn->prepare("SELECT Program_Name, Program_Description, Uncom_cert, Com_Cert, Purpose_Statement 
+    $stmt = $conn->prepare("SELECT App_Num, Program_Name, Program_Description, Uncom_cert, Com_Cert, Purpose_Statement 
     FROM studentprogramapplicationinfo 
     WHERE Student_UIN=?
     ");
     $stmt->bind_param("i", $UIN);
     $stmt->execute();
-    $stmt->bind_result($Program_Name, $Program_Description, $Uncom_cert, $Com_Cert, $Purpose_Statement);
+    $stmt->bind_result($App_Num, $Program_Name, $Program_Description, $Uncom_cert, $Com_Cert, $Purpose_Statement);
     
 
     // Display the results
     echo "<h4>List of Apps:</h4>";
     echo "<table border='1'>";
     //student_UIN, program_num, program_name, program_Description, app_num, uncom_cert, com_cert, purpose_statement
-    echo "<tr><th>Program Name</th><th>Description</th><th>uncom_cert</th><th>com_cert</th><th>purpose_statement</th>";
+    echo "<tr><th>App Num</th><th>Program Name</th><th>Description</th><th>uncom_cert</th><th>com_cert</th><th>purpose_statement</th>";
 
     while ($stmt->fetch()) {
-        echo "<tr><td>$Program_Name</td><td>$Program_Description</td><td>$Uncom_cert</td><td>$Com_Cert</td><td>$Purpose_Statement</td>";
+        echo "<tr><td>$App_Num</td><td>$Program_Name</td><td>$Program_Description</td><td>$Uncom_cert</td><td>$Com_Cert</td><td>$Purpose_Statement</td>";
     }
 
     echo "</table>";
