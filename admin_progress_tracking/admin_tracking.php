@@ -57,6 +57,9 @@ if($user_type !== "admin") {
             <!-- Delete Report -->
             <button><a href="delete_report/delete_report.php">Delete Report</a></button>
         </div>
+        <div>
+            <button><a href="../admin_landing.php">Go Back</a></button>
+        </div>
     </div>
 </body>
 

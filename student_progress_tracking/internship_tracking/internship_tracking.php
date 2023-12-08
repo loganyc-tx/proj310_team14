@@ -84,7 +84,7 @@ function filter_input_data($input) {
             <form action="internship_tracking.php" method="post">
                 Internship ID: <input type="text" name="intern_id">
                 <br></br>
-                Status: <input type="text" name="status">
+                Application Status: <input type="text" name="status">
                 <br></br>
                 Year: <input type="text" name="year">
                 <br></br>
@@ -112,7 +112,7 @@ function filter_input_data($input) {
                 <br></br>
                 Intern ID: <input type="text" name="intern_id">
                 <br></br>
-                Status: <input type="text" name="status">
+                Application Status: <input type="text" name="status">
                 <br></br>
                 Year: <input type="text" name="year">
                 <br></br>
