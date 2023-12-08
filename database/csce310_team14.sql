@@ -100,7 +100,7 @@ CREATE TABLE `class_enrollment` (
 -- Table structure for table `college student`
 --
 
-CREATE TABLE `college student` (
+CREATE TABLE `college_student` (
   `UIN` int(11) NOT NULL,
   `Gender` varchar(11) NOT NULL,
   `Hispanic/Latino` binary(11) NOT NULL,
