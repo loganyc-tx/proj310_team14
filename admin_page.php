@@ -1,5 +1,6 @@
 <!-- COMPLETED BY SAM HIRVILAMPI -->
 <?php
+error_reporting(E_ERROR | E_PARSE);
 session_start();
 
 // Check if the user is logged in and is an admin
@@ -26,8 +27,9 @@ if ($conn->connect_error) {
 function insertUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Password, $User_Type, $Email, $Discord_Name, $access)
 {
     global $conn;
+    $accessValue = ($access === "0") ? "0" : $access;
     $sql = "INSERT INTO user (UIN, First_Name, M_Initial, Last_Name, Username, Passwords, User_Type, Email, Discord_Name, access)
-            VALUES ('$UIN', '$First_Name', '$M_Initial', '$Last_Name', '$Username', '$Password', '$User_Type', '$Email', '$Discord_Name', '$access')";
+            VALUES ('$UIN', '$First_Name', '$M_Initial', '$Last_Name', '$Username', '$Password', '$User_Type', '$Email', '$Discord_Name', '$accessValue')";
     return $conn->query($sql);
 }
 
@@ -112,7 +114,6 @@ function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
 
     // Initialize an array to store the fields to be updated
     $updateFields = array();
-
     // Check each field and add it to the array if it's not empty
     if (!empty($First_Name))
         $updateFields[] = "First_Name='$First_Name'";
@@ -131,7 +132,9 @@ function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
     if (!empty($Discord_Name))
         $updateFields[] = "Discord_Name='$Discord_Name'";
     if (!empty($access))
-        $updateFields[] = "access='$access'";
+        $accessValue = ($access === "0") ? "0" : $access;
+        $updateFields[] = "access='$accessValue'";
+        //$updateFields[] = "access='$access'";
 
     // If there are fields to update, build the SQL query and execute it
     if (!empty($updateFields)) {
@@ -200,13 +203,16 @@ function updateStudent($UIN, $Gender, $Hispanic_Latino, $Race, $US_Citizen, $Fir
     if (!empty($Gender))
         $updateFields[] = "Gender='$Gender'";
         if (!empty($Hispanic_Latino))
-        $updateFields[] = "Hispanic_Latino='$Hispanic_Latino'";
+        $hlValue = ($Hispanic_Latino === "0") ? "0" : $Hispanic_Latino;
+        $updateFields[] = "First_Generation='$hlValue'";
     if (!empty($Race))
         $updateFields[] = "Race='$Race'";
     if (!empty($US_Citizen))
-        $updateFields[] = "US_Citizen='$US_Citizen'";
+        $usValue = ($US_Citizen === "0") ? "0" : $US_Citizen;
+        $updateFields[] = "US_Citizen='$usValue'";
     if (!empty($First_Generation))
-        $updateFields[] = "First_Generation='$First_Generation'";
+        $fgValue = ($First_Generation === "0") ? "0" : $First_Generation;
+        $updateFields[] = "First_Generation='$fgValue'";
     if (!empty($DoB))
         $updateFields[] = "DoB='$DoB'";
     if (!empty($GPA))
@@ -325,10 +331,10 @@ function displayAdminTable($result)
 {
     if ($result->num_rows > 0) {
         echo "<table border='1'>";
-        echo "<tr><th>User Type</th><th>UIN</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Discord</th><th>Access</th></tr>";
+        echo "<tr><th>User Type</th><th>UIN</th><th>First Name</th><th>Middle Initial</th><th>Last Name</th><th>Email</th><th>Discord</th><th>Access</th></tr>";
 
         while ($row = $result->fetch_assoc()) {
-            echo "<tr><td>" . $row["User_Type"] . "</td><td>" . $row["UIN"] . "</td><td>" . $row["First_Name"] . "</td><td>" . $row["Last_Name"] . "</td><td>" . $row["Email"] . "</td><td>" . $row["Discord_Name"] . "</td><td>" . $row["access"] . "</td></tr>";
+            echo "<tr><td>" . $row["User_Type"] . "</td><td>" . $row["UIN"] . "</td><td>" . $row["First_Name"] . "</td><td>" . $row["M_Initial"] . "</td><td>" . $row["Last_Name"] . "</td><td>" . $row["Email"] . "</td><td>" . $row["Discord_Name"] . "</td><td>" . $row["access"] . "</td></tr>";
         }
 
         echo "</table>";
@@ -343,11 +349,11 @@ function displayStudentTable($result)
 
     if ($result->num_rows > 0) {
         echo "<table border='1'>";
-        echo "<tr><th>User Type</th><th>UIN</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Discord Name</th><th>Access</th><th>Gender</th><th>Hispanic/Latino</th><th>Race</th><th>US Citizen</th><th>First Generation</th><th>DoB</th><th>GPA</th><th>Major</th><th>Minor #1</th>
+        echo "<tr><th>User Type</th><th>UIN</th><th>First Name</th><th>Middle Initial</th><th>Last Name</th><th>Email</th><th>Discord Name</th><th>Access</th><th>Gender</th><th>Hispanic/Latino</th><th>Race</th><th>US Citizen</th><th>First Generation</th><th>DoB</th><th>GPA</th><th>Major</th><th>Minor #1</th>
             <th>Minor #2</th><th>Expected Graduation</th><th>School</th><th>Classification</th><th>Phone</th><th>Student Type</th></tr>";
 
         while ($row = $result->fetch_assoc()) {
-            echo "<tr><td>" . $row["User_Type"] . "</td><td>" . $row["UIN"] . "</td><td>" . $row["First_Name"] . "</td><td>" . $row["Last_Name"] . "</td><td>" . $row["Email"] . "</td><td>" . $row["Discord_Name"] . "</td><td>" . $row["access"] . "</td><td>" . $row["Gender"] . "</td><td>" . $row["Hispanic_Latino"] . "</td><td>" . $row["Race"] . "</td><td>"
+            echo "<tr><td>" . $row["User_Type"] . "</td><td>" . $row["UIN"] . "</td><td>" . $row["First_Name"] . "</td><td>" . $row["M_Initial"] . "</td><td>" . $row["Last_Name"] . "</td><td>" . $row["Email"] . "</td><td>" . $row["Discord_Name"] . "</td><td>" . $row["access"] . "</td><td>" . $row["Gender"] . "</td><td>" . $row["Hispanic_Latino"] . "</td><td>" . $row["Race"] . "</td><td>"
                 . $row["US_Citizen"] . "</td><td>" . $row["First_Generation"] . "</td><td>" . $row["DoB"] . "</td><td>" . $row["GPA"] . "</td><td>" . $row["Major"] . "</td><td>" . $row["Minor_1"] . "</td><td>" . $row["Minor_2"] . "</td><td>" . $row["Expected_Graduation"] . "</td><td>" . $row["School"] . "</td><td>" . $row["Classification"] . "</td><td>"
                 . $row["Phone"] . "</td><td>" . $row["Student_Type"] . "</td></tr>";
         }
