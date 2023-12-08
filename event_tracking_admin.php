@@ -89,7 +89,7 @@
     <nav>
         <ul>
             <li><a href="admin_page.php">Role Management</a></li>
-            <li><a href="admin_tracking.php">Program Tracking</a></li>
+            <li><a href="admin_progress_tracking/admin_tracking.php">Program Tracking</a></li>
             <li><a href="admin_apps.php">Program Information</a></li>
             <li><a href="all_event.php">Events</a></li>
             <li><a href="event_tracking_admin.php">Event Tracking</a></li>

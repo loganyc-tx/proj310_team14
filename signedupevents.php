@@ -89,7 +89,7 @@
         <ul>
             <li><a href="student_page.php">Profile Management</a></li>
             <li><a href="student_apps.php">Application Information</a></li>
-            <li><a href="student_tracking.php">Program Tracking</a></li>
+            <li><a href="student_progress_tracking/student_tracking.php">Program Tracking</a></li>
             <li><a href="student_event.php">Events</a></li>
             <li><a href="student_doc.php">Document Management</a></li>
         </ul>

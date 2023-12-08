@@ -54,26 +54,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
 
-
-        // Check if the application number already has a document attached
-        $checkExistingDocQuery = "SELECT COUNT(*) AS NumDocs FROM document WHERE App_Num = ?";
-        $stmtCheck = $conn->prepare($checkExistingDocQuery);
-        $stmtCheck->bind_param('i', $App_Num);
-        $stmtCheck->execute();
-        $resultCheck = $stmtCheck->get_result();
-        $rowCheck = $resultCheck->fetch_assoc();
-
-        if ($rowCheck['NumDocs'] > 0) {
-            // Application number already has a document attached, you can handle this case
-            echo '<script>
-                alert("Application number already has a document attached. Please Update or Remove the document already there.");
-                window.location.href = "student_doc.php";
-            </script>';
-            $stmtCheck->close();
-            $conn->close();
-            exit();
-        }
-
         // Get the last Doc_Num and add 1 to it
         $getLastDocNumQuery = "SELECT MAX(Doc_Num) AS LastDocNum FROM document";
         $result = $conn->query($getLastDocNumQuery);
