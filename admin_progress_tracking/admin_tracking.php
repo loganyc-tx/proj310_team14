@@ -45,6 +45,8 @@
             <button><a href="certification_tracking/certification_tracking.php">Certification Tracking</a></button>
             <!-- Internship Status Search -->
             <button><a href="internship_tracking/internship_tracking.php">Internship Tracking</a></button>
+            <!-- Delete Report -->
+            <button><a href="delete_report/delete_report.php">Delete Report</a></button>
         </div>
     </div>
 </body>
