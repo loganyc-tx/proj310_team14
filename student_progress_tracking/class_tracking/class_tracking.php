@@ -10,8 +10,8 @@ if(!isset($uin)) {
 }
 // Verify that user is a student
 $user_type = $_SESSION["userType"];
-if(!isset($user_type)) {
-    header("Location: index.php");
+if ($user_type !== "student") {
+    header("Location: ../index.php");
     die("You are not a student.");
 }
 // Connect to SQL database
