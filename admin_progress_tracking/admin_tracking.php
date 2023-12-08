@@ -1,4 +1,13 @@
 <!-- Author: Caleb Williamson, UIN: 128009239 -->
+<?php
+// Verify that user is an admin
+session_start();
+$user_type = $_SESSION["userType"];
+if($user_type !== "admin") {
+    header("Location: ../index.php");
+    die("You are not an admin.");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -27,12 +36,12 @@
                 <input type="submit" value="Search">
             </form>
             <?php
-            if (isset($_POST["uin"])) {
-                if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if(isset($_POST["uin"])) {
+                if($_SERVER["REQUEST_METHOD"] == "POST") {
                     try {
                         require "student_program_search.php";
                     } catch (Exception $e) {
-                        echo "Fatal Error occured when performing User Program Search. Error Message: " . $e->getMessage() . "Error Trace: " . $e->getTrace();
+                        echo "Fatal Error occured when performing User Program Search. Error Message: ".$e->getMessage()."Error Trace: ".$e->getTrace();
                     }
                 }
             }
