@@ -116,9 +116,22 @@ function updateUser($UIN, $First_Name, $M_Initial, $Last_Name, $Username, $Passw
     // Check each field and add it to the array if it's not empty
     if (!empty($First_Name))
         $updateFields[] = "First_Name='$First_Name'";
-    // ... (other fields)
+    if (!empty($M_Initial))
+        $updateFields[] = "M_Initial='$M_Initial'";
+    if (!empty($Last_Name))
+        $updateFields[] = "Last_Name='$Last_Name'";
+    if (!empty($Username))
+        $updateFields[] = "Username='$Username'";
+    if (!empty($Password))
+        $updateFields[] = "Passwords='$Password'";
     if (!empty($User_Type))
         $updateFields[] = "User_Type='$User_Type'";
+    if (!empty($Email))
+        $updateFields[] = "Email='$Email'";
+    if (!empty($Discord_Name))
+        $updateFields[] = "Discord_Name='$Discord_Name'";
+    if (!empty($access))
+        $updateFields[] = "access='$access'";
 
     // If there are fields to update, build the SQL query and execute it
     if (!empty($updateFields)) {
