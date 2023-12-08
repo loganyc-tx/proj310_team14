@@ -1,7 +1,20 @@
 <!-- Author: Caleb Williamson, UIN: 128009239 -->
 <?php
-$uin = "123456789"
-    ?>
+// Verify that uin exists
+$uin = "";
+session_start();
+$uin = $_SESSION["uin"];
+if(!isset($uin)) {
+    header("Location: index.php");
+    die("UIN was not found.");
+}
+// Verify that user is a student
+$user_type = $_SESSION["userType"];
+if(!isset($user_type)) {
+    header("Location: index.php");
+    die("You are not a student.");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -25,11 +38,11 @@ $uin = "123456789"
                 My Programs
             </h3>
             <?php
-            if (isset($uin)) {
+            if(isset($uin)) {
                 try {
                     require "student_program_search.php";
                 } catch (Exception $e) {
-                    echo "Fatal Error occured when loading programs. Error Message: " . $e->getMessage() . "Error Trace: " . $e->getTrace();
+                    echo "Fatal Error occured when loading programs. Error Message: ".$e->getMessage()."Error Trace: ".$e->getTrace();
                 }
             }
             ?>
@@ -41,6 +54,9 @@ $uin = "123456789"
             <button><a href="certification_tracking/certification_tracking.php">Certification Tracking</a></button>
             <!-- Internship Status Search -->
             <button><a href="internship_tracking/internship_tracking.php">Internship Tracking</a></button>
+        </div>
+        <div>
+            <button><a href="../student_landing.php">Go Back</a></button>
         </div>
     </div>
 </body>
