@@ -1,11 +1,14 @@
+<!-- COMPLETED BY ROCK KANZARKAR -->
 <?php
+    // Set up error reporting and include database connection
     error_reporting(E_ALL);
     ini_set('display_errors', 'On');
-
     include_once 'dbh.inc.php';
 
+    // Start a session to manage user data
     session_start();
-    // Check if the user is logged in and is an admin
+
+    // Check if the user is logged in and is a student
     if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "student") {
         http_response_code(401); // Unauthorized
         exit();
@@ -14,7 +17,7 @@
     // Retrieve student information using the stored UIN in the session
     if (isset($_SESSION["uin"])) {
         $uin = $_SESSION["uin"];
-        // Rest of your code
+        // Rest of your code goes here
     } else {
         die("UIN not set in the session");
     }
@@ -25,10 +28,12 @@
 <html lang="en">
 
 <head>
+    <!-- Meta tags and Bootstrap CSS link -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <style>
+        /* Inline CSS styles for the page layout */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -36,6 +41,7 @@
             background-color: #f4f4f4;
         }
 
+        /* Styles for header and navigation */
         header {
             background-color: #333;
             color: #fff;
@@ -76,6 +82,7 @@
             color: #ff6600;
         }
 
+        /* Styles for content area */
         .content {
             padding: 20px;
             text-align: center;
@@ -83,7 +90,8 @@
     </style>
 </head>
 
-<body style= "margin: 50px;">
+<body style="margin: 50px;">
+    <!-- Page header and navigation links -->
     <h2>Signed Up Events</h2>
     <nav>
         <ul>
@@ -95,6 +103,7 @@
         </ul>
     </nav>
     
+    <!-- Table to display signed-up events -->
     <table class="table">
         <thead>
             <tr>
@@ -119,11 +128,12 @@
                 die("Connection failed: " . $conn->connect_error);
             }
 
-            // Fetch and display events from the database
+            // Fetch and display events from the database for the current user
             $fetchEventsQuery = "SELECT * FROM event_tracking USE INDEX (studentSignedUp) WHERE UIN = {$uin}";
             $result = $conn->query($fetchEventsQuery);
 
             if ($result->num_rows > 0) {
+                // Display signed-up events in the table
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>";
                     echo "<td>" . $row['ET_Num'] . "</td>";
@@ -133,7 +143,8 @@
                     echo "</tr>";
                 }
             } else {
-                echo "<tr><td colspan='11'>No events found</td></tr>";
+                // Display a message if no signed-up events are found
+                echo "<tr><td colspan='4'>No events found</td></tr>";
             }
             ?>
         </tbody>

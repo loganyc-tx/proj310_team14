@@ -1,11 +1,14 @@
+<!-- COMPLETED BY ROCK KANZARKAR -->
 <?php
+    // Set up error reporting and include database connection
     error_reporting(E_ALL);
     ini_set('display_errors', 'On');
-
     include_once 'dbh.inc.php';
 
+    // Start a session to manage user data
     session_start();
-    // Check if the user is logged in and is an admin
+
+    // Check if the user is logged in and is a student
     if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "student") {
         http_response_code(401); // Unauthorized
         exit();
@@ -14,11 +17,12 @@
     // Retrieve student information using the stored UIN in the session
     if (isset($_SESSION["uin"])) {
         $uin = $_SESSION["uin"];
-        // Rest of your code
+        // Rest of your code goes here
     } else {
         die("UIN not set in the session");
     }
 
+    // Check if the form is submitted for updating a document
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateEvent'])) {
         $docNum = $_POST['Doc_Num'];
         $link = $_POST['editLink'];
@@ -41,7 +45,6 @@
 
         $updateStmt->close();
     }
-
 ?>
 
 <?php include 'header.php'; ?>
@@ -49,10 +52,12 @@
 <html lang="en">
 
 <head>
+    <!-- Meta tags and Bootstrap CSS link -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <style>
+        /* Inline CSS styles for the page layout */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -60,6 +65,7 @@
             background-color: #f4f4f4;
         }
 
+        /* Styles for header and navigation */
         header {
             background-color: #333;
             color: #fff;
@@ -100,6 +106,7 @@
             color: #ff6600;
         }
 
+        /* Styles for content area */
         .content {
             padding: 20px;
             text-align: center;
@@ -107,7 +114,8 @@
     </style>
 </head>
 
-<body style= "margin: 50px;">
+<body style="margin: 50px;">
+    <!-- Page header and navigation links -->
     <h2>Documents</h2>
     <nav>
         <ul>
@@ -119,17 +127,22 @@
         </ul>
     </nav>
 
+    <!-- Button to toggle the document addition form -->
     <a class="btn btn-primary" onclick="toggleForm()">Add Document</a>
+    
     <!-- Form initially hidden with inline style -->
     <form id="eventForm" action="add_doc.php" method="post" style="display:none;">
-            <label for="App_Num">Application Number:</label>
-            <input type="text" id="App_Num" name="App_Num" required><br>
-            <label for="Link">Link:</label>
-            <input type="text" id="Link" name="Link" required><br>
-            <label for="Doc_Type">Document Type:</label>
-            <input type="text" id="Doc_Type" name="Doc_Type" required><br>
-            <input type="submit" value="Add Event">
+        <!-- Form fields for adding a document -->
+        <label for="App_Num">Application Number:</label>
+        <input type="text" id="App_Num" name="App_Num" required><br>
+        <label for="Link">Link:</label>
+        <input type="text" id="Link" name="Link" required><br>
+        <label for="Doc_Type">Document Type:</label>
+        <input type="text" id="Doc_Type" name="Doc_Type" required><br>
+        <input type="submit" value="Add Document">
     </form>
+
+    <!-- Popup for editing a document -->
     <div id="editPopup" class="popup" style="display: none;">
         <div class="popup-content">
             <span class="close" onclick="closePopup()">&times;</span>
@@ -144,6 +157,8 @@
             </form>
         </div>
     </div>
+
+    <!-- Table to display documents -->
     <table class="table">
         <thead>
             <tr>
@@ -166,22 +181,26 @@
                 $result = $conn->query($fetchDocumentsQuery);
 
                 if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . $row['Doc_Num'] . "</td>";
-                    echo "<td>" . $row['App_Num'] . "</td>";
-                    echo "<td><a href='" . $row['Link'] . "' target='_blank'>" . $row['Link'] . "</a></td>";
-                    echo "<td>" . $row['Doc_Type'] . "</td>";
-                    echo "<td><a href='del_doc.php?a={$row['Doc_Num']}'>Remove</a></td>";
-                    echo "<td><button onclick='showRowInfo(this)'>Edit</button></td>";
-                    echo "</tr>";
-                }
+                    // Display documents in the table
+                    while ($row = $result->fetch_assoc()) {
+                        echo "<tr>";
+                        echo "<td>" . $row['Doc_Num'] . "</td>";
+                        echo "<td>" . $row['App_Num'] . "</td>";
+                        echo "<td><a href='" . $row['Link'] . "' target='_blank'>" . $row['Link'] . "</a></td>";
+                        echo "<td>" . $row['Doc_Type'] . "</td>";
+                        echo "<td><a href='del_doc.php?a={$row['Doc_Num']}'>Remove</a></td>";
+                        echo "<td><button onclick='showRowInfo(this)'>Edit</button></td>";
+                        echo "</tr>";
+                    }
                 } else {
-                    echo "<tr><td colspan='4'>No documents found</td></tr>";
+                    // Display a message if no documents are found
+                    echo "<tr><td colspan='6'>No documents found</td></tr>";
                 }
             ?>
         </tbody>
     </table>
+
+    <!-- JavaScript functions for toggling form visibility and editing popup -->
     <script>
         function toggleForm() {
             var form = document.getElementById("eventForm");
@@ -212,10 +231,9 @@
             showPopup();
         }
     </script>
-
-    
-
 </body>
+</html>
+
 
 
 

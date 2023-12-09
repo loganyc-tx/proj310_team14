@@ -1,24 +1,31 @@
+<!-- COMPLETED BY ROCK KANZARKAR -->
 <?php
+// Enable error reporting for debugging purposes
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
-    session_start();
-    // Check if the user is logged in and is an admin
-    if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "admin") {
-        http_response_code(401); // Unauthorized
-        exit();
-    }
+// Start the PHP session
+session_start();
 
-    // Retrieve student information using the stored UIN in the session
-    if (isset($_SESSION["uin"])) {
-        $uin = $_SESSION["uin"];
-        // Rest of your code
-    } else {
-        die("UIN not set in the session");
-    }
+// Check if the user is logged in and is an admin
+if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "admin") {
+    // If not logged in or not an admin, send 401 Unauthorized response and exit
+    http_response_code(401);
+    exit();
+}
 
+// Retrieve student information using the stored UIN in the session
+if (isset($_SESSION["uin"])) {
+    $uin = $_SESSION["uin"];
+    // Continue with the rest of your code
+} else {
+    // If UIN is not set in the session, terminate with an error message
+    die("UIN not set in the session");
+}
 
+// Check if the form is submitted via POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Retrieve values from the POST data
     $UIN = $uin;
     $Program_Num = $_POST['Program_Num'];
     $Start_Date = $_POST['Start_Date'];
@@ -29,6 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $Event_Type = $_POST['Event_Type'];
 
     try {
+        // Include the database connection file
         require_once "dbh.inc.php";
 
         // Check if the specified Program_Num exists in the Programs table
@@ -69,11 +77,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Commit the transaction
         $conn->commit();
-        
-        // Redirect back to table.php
+
+        // Redirect back to event_admin.php
         header("location: event_admin.php");
         exit();
     } catch (PDOException $e) {
+        // Display an error message if the insertion fails
         echo '<script>
             alert("Failed to add event: ' . $e->getMessage() . '");
             window.location.href = "event_admin.php";
@@ -81,9 +90,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit(); // Exit the script
     }
 } else {
-    // Redirect back to table.php
+    // Redirect back to event_admin.php if the form is not submitted via POST
     header("location: event_admin.php");
     exit();
 }
 ?>
+
 

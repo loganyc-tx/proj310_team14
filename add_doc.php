@@ -1,23 +1,29 @@
+<!-- COMPLETED BY ROCK KANZARKAR -->
 <?php
+// Enable error reporting for debugging purposes
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
-    session_start();
-    // Check if the user is logged in and is an admin
-    if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "student") {
-        http_response_code(401); // Unauthorized
-        exit();
-    }
+// Start a session
+session_start();
 
-    // Retrieve student information using the stored UIN in the session
-    if (isset($_SESSION["uin"])) {
-        $uin = $_SESSION["uin"];
-        // Rest of your code
-    } else {
-        die("UIN not set in the session");
-    }
+// Check if the user is logged in and is a student
+if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "student") {
+    http_response_code(401); // Unauthorized
+    exit();
+}
 
+// Retrieve student information using the stored UIN in the session
+if (isset($_SESSION["uin"])) {
+    $uin = $_SESSION["uin"];
+    // Rest of your code
+} else {
+    die("UIN not set in the session");
+}
+
+// Check if the form is submitted via POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Retrieve values from the POST data
     $App_Num = $_POST['App_Num'];
     $Doc_Type = $_POST['Doc_Type'];
     $Link = $_POST['Link'];
@@ -36,6 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             die("Connection failed: " . $conn->connect_error);
         }
 
+        // Check if the student has an existing application for the specified App_Num
         $checkExistingAppQuery = "SELECT COUNT(*) AS NumApps FROM applications WHERE UIN = ? AND App_Num = ?";
         $stmtAppCheck = $conn->prepare($checkExistingAppQuery);
         $stmtAppCheck->bind_param('ii', $uin, $App_Num); // Assuming UIN and App_Num are both integers, adjust types if necessary
@@ -99,5 +106,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit();
 }
 ?>
+
 
 

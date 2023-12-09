@@ -1,13 +1,16 @@
+<!-- COMPLETED BY ROCK KANZARKAR -->
 <?php
-// Establish a connection to the database
-$host = "localhost";
-$user = "root";
-$password = "";
-$database = "csce310_team14";
+// Database connection parameters
+$host = "localhost";     // Hostname where your database server is running
+$user = "root";          // Database username
+$password = "";          // Database password
+$database = "csce310_team14";  // Database name
 
+// Create a new mysqli object for establishing a database connection
 $conn = new mysqli($host, $user, $password, $database);
 
-// Check the connection
+// Check if the connection was successful
 if ($conn->connect_error) {
+    // If the connection fails, terminate the script and display an error message
     die("Connection failed: " . $conn->connect_error);
 }

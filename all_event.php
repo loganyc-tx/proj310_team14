@@ -1,81 +1,91 @@
+<!-- COMPLETED BY ROCK KANZARKAR -->
 <?php
-    error_reporting(E_ALL);
-    ini_set('display_errors', 'On');
+// Enable error reporting for debugging purposes
+error_reporting(E_ALL);
+ini_set('display_errors', 'On');
 
-    include_once 'dbh.inc.php';
+// Include the database connection file
+include_once 'dbh.inc.php';
 
-    session_start();
-    // Check if the user is logged in and is an admin
-    if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "admin") {
-        http_response_code(401); // Unauthorized
-        exit();
+// Start the PHP session
+session_start();
+
+// Check if the user is logged in and is an admin
+if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "admin") {
+    // If not logged in or not an admin, send 401 Unauthorized response and exit
+    http_response_code(401);
+    exit();
+}
+
+// Retrieve student information using the stored UIN in the session
+if (isset($_SESSION["uin"])) {
+    $uin = $_SESSION["uin"];
+    // Continue with the rest of your code
+} else {
+    // If UIN is not set in the session, terminate with an error message
+    die("UIN not set in the session");
+}
+
+// Check if the form is submitted via POST and the 'updateEvent' button is clicked
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateEvent'])) {
+    // Retrieve values from the POST data
+    $eventID = $_POST['eventID'];
+    $programNum = $_POST['Program_Num'];
+    $startDate = $_POST['Start_Date'];
+    $startTime = $_POST['Start_Time'];
+    $location = $_POST['Location'];
+    $endDate = $_POST['End_Date'];
+    $endTime = $_POST['End_Time'];
+    $eventType = $_POST['Event_Type'];
+
+    // Check if the specified Program_Num exists in the Programs table
+    $checkProgramQuery = "SELECT * FROM programs WHERE Program_Num = ?";
+    $checkProgramStmt = $conn->prepare($checkProgramQuery);
+    $checkProgramStmt->bind_param('i', $programNum);
+    $checkProgramStmt->execute();
+    $checkProgramResult = $checkProgramStmt->get_result();
+
+    if ($checkProgramResult->num_rows == 0) {
+        // Program_Num does not exist in Programs table
+        $checkProgramStmt->close();
+        echo '<script>
+            alert("Program Number does not exist!");
+            window.location.href = "event_admin.php";
+        </script>';
+        exit(); // Exit the script
     }
 
-    // Retrieve student information using the stored UIN in the session
-    if (isset($_SESSION["uin"])) {
-        $uin = $_SESSION["uin"];
-        // Rest of your code
+    // Check if the specified UIN exists in the user table
+    $checkUINQuery = "SELECT * FROM user WHERE UIN = ?";
+    $checkUINStmt = $conn->prepare($checkUINQuery);
+    $checkUINStmt->bind_param('i', $uin);
+    $checkUINStmt->execute();
+    $checkUINResult = $checkUINStmt->get_result();
+
+    if ($checkUINResult->num_rows == 0) {
+        // UIN does not exist in user table
+        $checkUINStmt->close();
+        echo '<script>
+            alert("UIN does not exist!");
+            window.location.href = "event_admin.php";
+        </script>';
+        exit(); // Exit the script
+    }
+
+    // Update the database with the new values
+    $updateQuery = "UPDATE event
+                    SET UIN = '$uin', Program_Num = '$programNum', Start_Date = '$startDate',
+                        Start_Time = '$startTime', Location = '$location', End_Date = '$endDate',
+                        End_Time = '$endTime', Event_Type = '$eventType'
+                    WHERE Event_ID = $eventID";
+
+    if ($conn->query($updateQuery) === TRUE) {
+        // Record updated successfully 
     } else {
-        die("UIN not set in the session");
+        // Display an error message if the update fails
+        echo "Error updating record: " . $conn->error;
     }
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateEvent'])) {
-        $eventID = $_POST['eventID'];
-        $programNum = $_POST['Program_Num'];
-        $startDate = $_POST['Start_Date'];
-        $startTime = $_POST['Start_Time'];
-        $location = $_POST['Location'];
-        $endDate = $_POST['End_Date'];
-        $endTime = $_POST['End_Time'];
-        $eventType = $_POST['Event_Type'];
-
-        // Check if the specified Program_Num exists in the Programs table
-        $checkProgramQuery = "SELECT * FROM programs WHERE Program_Num = ?";
-        $checkProgramStmt = $conn->prepare($checkProgramQuery);
-        $checkProgramStmt->bind_param('i', $programNum);
-        $checkProgramStmt->execute();
-        $checkProgramResult = $checkProgramStmt->get_result();
-
-        if ($checkProgramResult->num_rows == 0) {
-            // Program_Num does not exist in Programs table
-            $checkProgramStmt->close();
-            echo '<script>
-                alert("Program Number does not exist!");
-                window.location.href = "event_admin.php";
-            </script>';
-            exit(); // Exit the script
-        }
-
-        // Check if the specified Program_Num exists in the Programs table
-        $checkUINQuery = "SELECT * FROM user WHERE UIN = ?";
-        $checkUINStmt = $conn->prepare($checkUINQuery);
-        $checkUINStmt->bind_param('i', $uin);
-        $checkUINStmt->execute();
-        $checkUINResult = $checkUINStmt->get_result();
-
-        if ($checkUINResult->num_rows == 0) {
-            // Program_Num does not exist in Programs table
-            $checkUINStmt->close();
-            echo '<script>
-                alert("UIN does not exist!");
-                window.location.href = "event_admin.php";
-            </script>';
-            exit(); // Exit the script
-        }
-
-        // Update the database with the new values
-        $updateQuery = "UPDATE event
-                        SET UIN = '$uin', Program_Num = '$programNum', Start_Date = '$startDate',
-                            Start_Time = '$startTime', Location = '$location', End_Date = '$endDate',
-                            End_Time = '$endTime', Event_Type = '$eventType'
-                        WHERE Event_ID = $eventID";
-
-        if ($conn->query($updateQuery) === TRUE) {
-            //echo "Record updated successfully";
-        } else {
-            echo "Error updating record: " . $conn->error;
-        }
-    }
+}
 ?>
 
 <?php include 'header.php'; ?>
@@ -153,6 +163,7 @@
         </ul>
     </nav>
 
+    <!-- Add Popup -->
     <a class="btn btn-primary" onclick="toggleForm()">Add Event</a>
     <!-- Form initially hidden with inline style -->
     <form id="eventForm" action="add_event.php" method="post" style="display:none;">
@@ -212,7 +223,7 @@
                 <th>End Time</th>
                 <th>Event Type</th>
                 <th>Delete</th>
-                <th>Edit</th> <!-- New column for edit button -->
+                <th>Edit</th> 
             </tr>
         </thead>
         <tbody>

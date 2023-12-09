@@ -154,6 +154,7 @@
             <li><a href="event_tracking_admin.php">Event Tracking</a></li>
         </ul>
     </nav>
+    
     <a class="btn btn-primary" onclick="toggleForm()">Add Event</a>
     <!-- Form initially hidden with inline style -->
     <form id="eventForm" action="add_event.php" method="post" style="display:none;">

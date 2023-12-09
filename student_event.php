@@ -1,10 +1,13 @@
+<!-- COMPLETED BY ROCK KANZARKAR -->
 <?php
+    // Set up error reporting and include database connection
     error_reporting(E_ALL);
     ini_set('display_errors', 'On');
-
     include_once 'dbh.inc.php';
 
+    // Start a session to manage user data
     session_start();
+
     // Check if the user is logged in and is an admin
     if (!isset($_SESSION["username"]) || $_SESSION["userType"] !== "student") {
         http_response_code(401); // Unauthorized
@@ -14,7 +17,7 @@
     // Retrieve student information using the stored UIN in the session
     if (isset($_SESSION["uin"])) {
         $uin = $_SESSION["uin"];
-        // Rest of your code
+        // Rest of your code goes here
     } else {
         die("UIN not set in the session");
     }
@@ -25,17 +28,20 @@
 <html lang="en">
 
 <head>
+    <!-- Meta tags and Bootstrap CSS link -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <style>
+        /* Inline CSS styles for the page layout */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
         }
-
+        
+        /* Styles for header and navigation */
         header {
             background-color: #333;
             color: #fff;
@@ -76,13 +82,16 @@
             color: #ff6600;
         }
 
+        /* Styles for content area */
         .content {
             padding: 20px;
             text-align: center;
         }
     </style>
 </head>
-<body style= "margin: 50px;">
+
+<body style="margin: 50px;">
+    <!-- Page header and navigation links -->
     <h2>Event Table</h2>
     <nav>
         <ul>
@@ -93,16 +102,20 @@
             <li><a href="student_doc.php">Document Management</a></li>
         </ul>
     </nav>
+    
+    <!-- Button to toggle the event sign-up form -->
     <a class="btn btn-primary" onclick="toggleForm()">Sign Up For Event</a>
+    
     <!-- Form initially hidden with inline style -->
     <form id="eventForm" action="add_event_tracking.php" method="post" style="display:none;">
-            <!-- <label for="uin">UIN:</label>
-            <input type="text" id="uin" name="uin" required><br> -->
-            <label for="Event_ID">Event ID:</label>
-            <input type="text" id="Event_ID" name="Event_ID" required><br>
-            <input type="submit" value="Submit">
+        <!-- Form fields for event sign-up -->
+        <label for="Event_ID">Event ID:</label>
+        <input type="text" id="Event_ID" name="Event_ID" required><br>
+        <input type="submit" value="Submit">
     </form>
-    <table class = "table">
+    
+    <!-- Table to display events -->
+    <table class="table">
         <thead>
             <tr>
                 <th>Event ID</th>
@@ -130,11 +143,12 @@
                 die("Connection failed: " . $conn->connect_error);
             }
 
+            // Fetch events from the database
             $fetchEventsQuery = "SELECT * FROM eventview";
-
             $result = $conn->query($fetchEventsQuery);
 
             if ($result->num_rows > 0) {
+                // Display events in the table
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>";
                     echo "<td>" . $row['Event_ID'] . "</td>";
@@ -148,13 +162,17 @@
                     echo "</tr>"; 
                 }
             } else {
-                echo "<tr><td colspan='10'>No events found</td></tr>";
+                // Display a message if no events are found
+                echo "<tr><td colspan='8'>No events found</td></tr>";
             }
 
+            // Close the database connection
+            $conn->close();
             ?>
         </tbody>
     </table>
-    
+
+    <!-- JavaScript function to toggle the visibility of the event sign-up form -->
     <script>
         function toggleForm() {
             var form = document.getElementById("eventForm");
