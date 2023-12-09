@@ -20,36 +20,17 @@
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateEvent'])) {
-        $docNum = $_POST['editDoc_Num'];
-        $appNum = $_POST['editApp_Num'];
+        $docNum = $_POST['Doc_Num'];
         $link = $_POST['editLink'];
         $docType = $_POST['editDoc_Type'];
-       
-
-        // Check if the specified App_Num exists in the Applications table
-        $checkAppQuery = "SELECT * FROM applications WHERE App_Num = ?";
-        $checkAppStmt = $conn->prepare($checkAppQuery);
-        $checkAppStmt->bind_param('i', $appNum);
-        $checkAppStmt->execute();
-        $checkAppResult = $checkAppStmt->get_result();
-
-        if ($checkAppResult->num_rows == 0) {
-            // App_Num does not exist in Applications table
-            $checkAppStmt->close();
-            echo '<script>
-                alert("Application Number does not exist!");
-                window.location.href = "student_doc.php";
-            </script>';
-            exit(); // Exit the script
-        }
 
         // Update the database with the new values
         $updateQuery = "UPDATE document
-                        SET App_Num = ?, Link = ?, Doc_Type = ?
+                        SET Link = ?, Doc_Type = ?
                         WHERE Doc_Num = ?";
 
         $updateStmt = $conn->prepare($updateQuery);
-        $updateStmt->bind_param('isss', $appNum, $link, $docType, $docNum);
+        $updateStmt->bind_param('sss', $link, $docType, $docNum);
 
         if ($updateStmt->execute()) {
             // Document updated successfully
@@ -153,15 +134,11 @@
         <div class="popup-content">
             <span class="close" onclick="closePopup()">&times;</span>
             <!-- Edit form for updating database -->
-                <form id="editEventForm" method="post" action="">
-                <input type="hidden" id="editEventID" name="eventID" value="">
-                <label for="editDoc_Num">Document Number:</label>
-                <input type="text" id="editDoc_Num" name="editDoc_Num" required><br>
-                <label for="editApp_Num">Application Number:</label>
-                <input type="text" id="editApp_Num" name="editApp_Num" required><br>
+            <form id="editEventForm" method="post" action="">
+                <input type="hidden" id="editDoc_Num" name="Doc_Num" value="">
                 <label for="editLink">Link:</label>
                 <input type="text" id="editLink" name="editLink"><br>
-                <label for="editDoc_Type">Start Time:</label>
+                <label for="editDoc_Type">Document Type:</label>
                 <input type="text" id="editDoc_Type" name="editDoc_Type" required><br>
                 <input type="submit" name="updateEvent" value="Update Document">
             </form>
@@ -229,7 +206,6 @@
 
             // Populate the edit form with values from the selected row
             document.getElementById("editDoc_Num").value = cells[0].innerText;
-            document.getElementById("editApp_Num").value = cells[1].innerText;
             document.getElementById("editLink").value = cells[2].innerText;
             document.getElementById("editDoc_Type").value = cells[3].innerText;
 
